@@ -154,12 +154,12 @@ namespace Online_Exam.Repositories
             return videoQuestionsCount;
         }
 
-
+        //6.0
         public async Task<IEnumerable<TopStudentDto>> GetTop10StudentsByPercentile(int examId)
         {
             // Get all exam results for a specific exam
             var examResults = await _context.ExamResults
-                .Where(er => er.ExamId == examId)
+                .Where(er => er.ExamId == examId && er.AttemptNumber == 1)
                 .OrderByDescending(er => er.TotalScore)
                 .Include(er => er.User)  // Include user information for UserName and Email
                 .ToListAsync();
@@ -192,6 +192,79 @@ namespace Online_Exam.Repositories
             return top10Students;
         }
 
+
+        /////////////////////////////////////////////////////////////////////////////////////////////
+        ///
+
+        public async Task<IEnumerable<ExamResult>> GetTestsPerDayInRange(DateTime startDate, DateTime endDate)
+        {
+            return await _context.ExamResults
+                .Where(er => er.CompletedDate.Date >= startDate.Date && er.CompletedDate.Date <= endDate.Date)
+                .Include(er => er.Exam)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<ReportTwoDto>> GetTestsFinishedBeforeTimeInRange(DateTime startDate, DateTime endDate)
+        {
+            var results = await _context.ExamResults
+                .Include(er => er.Exam)
+                .Include(er => er.User) // Include User to access UserName and Email
+                .Where(er => er.CompletedDate.Date >= startDate.Date && er.CompletedDate.Date <= endDate.Date) // Filter by date range
+                .Where(er => er.Duration <= (er.Exam.Duration * 0.8)) // Finished in less than or equal to 80% of the exam time
+                .ToListAsync();
+
+            // Map results to DTO
+            var resultDtos = _mapper.Map<IEnumerable<ReportTwoDto>>(results);
+            return resultDtos;
+        }
+
+        public async Task<IEnumerable<ReportThreeDto>> GetAutoSubmittedTestsInRange(DateTime startDate, DateTime endDate)
+        {
+            var results = await _context.ExamResults
+                .Include(er => er.Exam)
+                .Include(er => er.User) // Include User to access UserName and Email
+                .Include(er => er.UserAnswers)
+                .Include(er => er.Exam.Sections)
+                .ThenInclude(s => s.Questions)
+                .Where(er => er.CompletedDate.Date >= startDate.Date && er.CompletedDate.Date <= endDate.Date) // Filter by date range
+                .Where(er => er.Duration >= er.Exam.Duration // Auto-submitted after full duration
+                             && er.Duration >= 30 // Auto-submitted after at least 30 minutes
+                             && er.UserAnswers.Count < (er.Exam.Sections.SelectMany(s => s.Questions).Count() / 2)) // Less than 50% of questions attempted
+                .ToListAsync();
+
+            var resultDtos = _mapper.Map<IEnumerable<ReportThreeDto>>(results);
+            return resultDtos;
+        }
+
+        public async Task<IEnumerable<ExamResultDto>> GetMarkedForReviewTestsInRange(DateTime startDate, DateTime endDate)
+        {
+            // Fetch all relevant exam results including related exam sections and questions
+            var results = await _context.ExamResults
+                .Include(er => er.Exam)
+                .ThenInclude(e => e.Sections)
+                .ThenInclude(s => s.Questions)
+                .Include(er => er.User) // Include user information
+                .Where(er => er.CompletedDate.Date >= startDate.Date && er.CompletedDate.Date <= endDate.Date) // Filter by date range
+                .ToListAsync();
+
+            // Filter results to those where at least 50% of questions are marked for review
+            var filteredResults = results
+                .Where(er =>
+                {
+                    // Calculate the total number of questions in the exam
+                    var totalQuestions = er.Exam.Sections.Sum(s => s.NumberOfQuestions);
+
+                    // Calculate the number of questions marked for review
+                    var markedForReview = er.markforreview;
+
+                    return totalQuestions > 0 && markedForReview >= (totalQuestions * 0.5);
+                });
+
+            // Map to DTOs
+            var resultDtos = _mapper.Map<IEnumerable<ExamResultDto>>(filteredResults);
+
+            return resultDtos;
+        }
 
 
     }

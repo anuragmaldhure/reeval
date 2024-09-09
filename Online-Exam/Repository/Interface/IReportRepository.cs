@@ -22,5 +22,16 @@ namespace Online_Exam.Repositories.Interfaces
         Task<int> GetVideoQuestionsCount();
 
         Task<IEnumerable<TopStudentDto>> GetTop10StudentsByPercentile(int examId);
+
+
+        Task<IEnumerable<ExamResult>> GetTestsPerDayInRange(DateTime startDate, DateTime endDate);
+
+        Task<IEnumerable<ReportTwoDto>> GetTestsFinishedBeforeTimeInRange(DateTime startDate, DateTime endDate);
+
+        Task<IEnumerable<ReportThreeDto>> GetAutoSubmittedTestsInRange(DateTime startDate, DateTime endDate);
+
+        Task<IEnumerable<ExamResultDto>> GetMarkedForReviewTestsInRange(DateTime startDate, DateTime endDate);
+
+
     }
 }

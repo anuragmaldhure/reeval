@@ -106,6 +106,86 @@ namespace Online_Exam.Controllers
 
 
 
+
+        //Some Extra Reports
+        [HttpGet("TestsPerDayInRange")]
+        public async Task<IActionResult> GetTestsPerDayInRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            // Validate the date range
+            if (endDate < startDate)
+            {
+                return BadRequest("End date must be greater than or equal to start date.");
+            }
+
+            var results = await _reportRepository.GetTestsPerDayInRange(startDate, endDate);
+
+            // Group the results by day and count the number of tests taken on each day
+            var report = results
+                .GroupBy(r => r.CompletedDate.Date)
+                .Select(g => new { Date = g.Key, NumberOfTests = g.Count() })
+                .ToList();
+
+            return Ok(report);
+        }
+
+        [HttpGet("FinishedBeforeTimeInRange")]
+        public async Task<IActionResult> GetTestsFinishedBeforeTimeInRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            // Validate the date range
+            if (endDate < startDate)
+            {
+                return BadRequest("End date must be greater than or equal to start date.");
+            }
+
+            var results = await _reportRepository.GetTestsFinishedBeforeTimeInRange(startDate, endDate);
+
+            if (!results.Any())
+            {
+                return NotFound("No tests finished before 80% of the time in the given date range.");
+            }
+
+            return Ok(results);
+        }
+
+
+        [HttpGet("AutoSubmittedAfter30MinsInRange")]
+        public async Task<IActionResult> GetAutoSubmittedTestsInRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            // Validate the date range
+            if (endDate < startDate)
+            {
+                return BadRequest("End date must be greater than or equal to start date.");
+            }
+
+            var results = await _reportRepository.GetAutoSubmittedTestsInRange(startDate, endDate);
+
+            if (!results.Any())
+            {
+                return NotFound("No auto-submitted tests found within the given date range.");
+            }
+
+            return Ok(results);
+        }
+
+        [HttpGet("MarkedForReviewInRange")]
+        public async Task<IActionResult> GetTestsMarkedForReviewInRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            // Validate the date range
+            if (endDate < startDate)
+            {
+                return BadRequest("End date must be greater than or equal to start date.");
+            }
+
+            var results = await _reportRepository.GetMarkedForReviewTestsInRange(startDate, endDate);
+
+            if (!results.Any())
+            {
+                return NotFound("No tests found where at least 50% of questions were marked for review within the given date range.");
+            }
+
+            return Ok(results);
+        }
+
     }
 }
 
