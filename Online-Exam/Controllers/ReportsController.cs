@@ -4,6 +4,7 @@ using Online_Exam.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Online_Exam.Controllers
 {
@@ -54,6 +55,57 @@ namespace Online_Exam.Controllers
             var results = await _reportRepository.GetMarkedForReviewTests();
             return Ok(results);
         }
+
+        //5.1 
+        [HttpGet("QuestionsWithImages")]
+        public async Task<IActionResult> GetQuestionsWithImages()
+        {
+            var results = await _reportRepository.GetQuestionsWithImages();
+            return Ok(results);
+        }
+        //5.2
+        [HttpGet("QuestionsWithVideos")]
+        public async Task<IActionResult> GetQuestionsWithVideos()
+        {
+            var results = await _reportRepository.GetQuestionsWithVideos();
+            return Ok(results);
+        }
+
+        //5.3 API to get the count of questions with images
+        [HttpGet("CountImageQuestions")]
+        public async Task<IActionResult> GetImageQuestionsCount()
+        {
+            var count = await _reportRepository.GetImageQuestionsCount();
+            return Ok(new { ImageQuestionsCount = count });
+        }
+
+        //5.4 API to get the count of questions with videos
+        [HttpGet("CountVideoQuestions")]
+        public async Task<IActionResult> GetVideoQuestionsCount()
+        {
+            var count = await _reportRepository.GetVideoQuestionsCount();
+            return Ok(new { VideoQuestionsCount = count });
+        }
+
+        //6.0
+
+        [HttpGet("Top10Students/{examId}")]
+        public async Task<IActionResult> GetTop10StudentsByPercentile(int examId)
+        {
+            var top10Students = await _reportRepository.GetTop10StudentsByPercentile(examId);
+
+            // If there are no exam results found, return a 404 with an appropriate message
+            if (top10Students == null)
+            {
+                return NotFound($"No exam results found for exam ID: {examId}.");
+            }
+
+            // If results are available, return 200 OK
+            return Ok(top10Students);
+        }
+
+
+
     }
 }
 
@@ -87,5 +139,3 @@ public async Task<IActionResult> GetTestsMarkedForReview()
 
     return Ok(report);
 }*/
-
-

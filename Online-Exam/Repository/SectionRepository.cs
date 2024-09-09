@@ -60,5 +60,23 @@ namespace Online_Exam.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<int> CalculateTotalMarksAsync(int sectionId)
+        {
+            var section = await _context.Sections
+                .Include(s => s.Questions)
+                .ThenInclude(q => q.Options)
+                .FirstOrDefaultAsync(s => s.SectionId == sectionId);
+
+            if (section == null)
+                return 0;
+
+            // Calculate total marks by summing correct option marks
+            int totalMarks = section.Questions.Sum(q =>
+                q.Options.Where(o => o.IsCorrect && o.Marks > 0).Sum(o => o.Marks ?? 0)); // Consider only positive marks
+
+
+
+            return totalMarks;
+        }
     }
 }

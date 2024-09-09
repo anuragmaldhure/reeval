@@ -12,5 +12,6 @@ namespace Online_Exam.Repositories.Interfaces
         Task CreateSectionAsync(Section section);
         Task UpdateSectionAsync(Section section);
         Task DeleteSectionAsync(int sectionId);
+        Task<int> CalculateTotalMarksAsync(int sectionId);
     }
 }

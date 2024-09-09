@@ -42,6 +42,20 @@ namespace Online_Exam.Controllers
             return Ok(questionDto);
         }
 
+        // GET: api/Question/Exam/5
+        [HttpGet("Exam/{examId}")]
+        public async Task<IActionResult> GetQuestionsByExamId(int examId)
+        {
+            var questions = await _questionRepository.GetQuestionsByExamIdAsync(examId);
+            if (questions == null || !questions.Any())
+                return NotFound("No questions found for the specified exam.");
+
+            var questionDtos = _mapper.Map<IEnumerable<QuestionDto>>(questions);
+            return Ok(questionDtos);
+        }
+
+
+
         // POST: api/Question
         [HttpPost]
         public async Task<IActionResult> CreateQuestion([FromBody] CreateQuestionDto createQuestionDto)

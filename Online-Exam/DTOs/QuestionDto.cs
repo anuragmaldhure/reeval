@@ -39,6 +39,15 @@
             public string MediaUrl { get; set; }
             public List<OptionDto> Options { get; set; }
         }
+
+        public class QuestionWithImageDto
+        {
+            public int QuestionId { get; set; }
+            public string QuestionText { get; set; }
+            public string SectionTitle { get; set; }
+            public string MediaUrl { get; set; }
+        }
+
     }
 
 }

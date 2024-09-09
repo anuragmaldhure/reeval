@@ -101,5 +101,17 @@ namespace Online_Exam.Controllers
             await _sectionRepository.DeleteSectionAsync(id);
             return NoContent();
         }
+
+        // GET: api/Section/TotalMarks/5
+        [HttpGet("TotalMarks/{sectionId}")]
+        public async Task<IActionResult> GetTotalMarksForSection(int sectionId)
+        {
+            var totalMarks = await _sectionRepository.CalculateTotalMarksAsync(sectionId);
+            if (totalMarks == 0)
+                return NotFound("Section not found or no correct answers available.");
+
+            return Ok(new { SectionId = sectionId, TotalMarks = totalMarks });
+        }
+
     }
 }

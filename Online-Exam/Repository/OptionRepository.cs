@@ -1,4 +1,5 @@
-﻿using Online_Exam.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Online_Exam.Data;
 using Online_Exam.Models;
 using Online_Exam.Repositories.Interfaces;
 using System.Threading.Tasks;
@@ -34,6 +35,13 @@ namespace Online_Exam.Repositories
                 _context.Options.Remove(option);
                 await _context.SaveChangesAsync();
             }
+        }
+        public async Task<IEnumerable<Question>> GetQuestionsByExamIdAsync(int examId)
+        {
+            return await _context.Questions
+                .Include(q => q.Options)  // Include related options
+                .Where(q => q.Section.ExamId == examId)  // Filter by ExamId
+                .ToListAsync();
         }
     }
 }
