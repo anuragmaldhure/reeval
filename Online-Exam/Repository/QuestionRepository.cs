@@ -67,5 +67,11 @@ namespace Online_Exam.Repositories
                 .ThenInclude(q => q.Options)
                 .ToListAsync();
         }
+        public async Task<List<Option>> GetOptionsByQuestionIdAsync(int questionId)
+        {
+            return await _context.Options
+                .Where(o => o.QuestionId == questionId)
+                .ToListAsync();
+        }
     }
 }

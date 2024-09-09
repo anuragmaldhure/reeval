@@ -27,10 +27,10 @@ public class MappingProfile : Profile
         // UserAnswer mapping
         CreateMap<UserAnswer, UserAnswerDto>()
             .ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.QuestionId))
-            .ForMember(dest => dest.SelectedOptionId, opt => opt.MapFrom(src => src.SelectedOptionId))
+            .ForMember(dest => dest.SelectedOptionIds, opt => opt.MapFrom(src => src.SelectedOptionId))
             .ReverseMap(); // Allows reverse mapping from DTO to entity
 
-        // ExamResult mapping with new fields (Duration, markforreview)
+        // ExamResult mapping with new fields 
         CreateMap<ExamResult, SubmitExamResultDto>()
             .ForMember(dest => dest.ExamResultId, opt => opt.MapFrom(src => src.ExamResultId))
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
@@ -40,24 +40,25 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Percentage, opt => opt.MapFrom(src => src.Percentage))
             .ForMember(dest => dest.Passed, opt => opt.MapFrom(src => src.Passed))
             .ForMember(dest => dest.CompletedDate, opt => opt.MapFrom(src => src.CompletedDate))
-            .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))  // Added
-            .ForMember(dest => dest.markforreview, opt => opt.MapFrom(src => src.markforreview))  // Added
+            .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+            .ForMember(dest => dest.markforreview, opt => opt.MapFrom(src => src.markforreview))
+            .ForMember(dest => dest.SectionResults, opt => opt.MapFrom(src => src.SectionResults))  // New section results mapping
             .ReverseMap();
 
+
+        // ExamResultDto mapping (No major changes except for ensuring score calculation)
         CreateMap<ExamResult, ExamResultDto>()
             .ForMember(dest => dest.ExamResultId, opt => opt.MapFrom(src => src.ExamResultId))
-            .ForMember(dest => dest.ExamTitle, opt => opt.MapFrom(src => src.Exam.Title)) // Map ExamTitle from Exam
-            .ForMember(dest => dest.TotalQuestions, opt => opt.MapFrom(src => src.Exam.Sections.SelectMany(s => s.Questions).Count())) // Calculate total questions
+            .ForMember(dest => dest.ExamTitle, opt => opt.MapFrom(src => src.Exam.Title))
+            .ForMember(dest => dest.TotalQuestions, opt => opt.MapFrom(src => src.Exam.Sections.SelectMany(s => s.Questions).Count()))
             .ForMember(dest => dest.markforreview, opt => opt.MapFrom(src => src.markforreview))
-
-            // New user-related fields
-            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName)) // Assuming User entity has UserName
-            .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))   // Assuming User entity has Email
-
-            // Additional fields from ExamResult
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
+            .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User.Email))
             .ForMember(dest => dest.CompletedDate, opt => opt.MapFrom(src => src.CompletedDate))
-            .ForMember(dest => dest.TotalScore, opt => opt.MapFrom(src => src.TotalScore))
-            .ForMember(dest => dest.Passed, opt => opt.MapFrom(src => src.Passed));
+            .ForMember(dest => dest.TotalScore, opt => opt.MapFrom(src => src.TotalScore))  // Updated score calculation
+            .ForMember(dest => dest.Passed, opt => opt.MapFrom(src => src.Passed))
+            .ReverseMap();
+
 
         CreateMap<ExamResult, ReportTwoDto>()
             .ForMember(dest => dest.ExamResultId, opt => opt.MapFrom(src => src.ExamResultId))

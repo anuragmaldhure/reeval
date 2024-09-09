@@ -13,5 +13,6 @@ namespace Online_Exam.Repositories.Interfaces
         Task DeleteQuestionAsync(int questionId);
         Task<IEnumerable<Question>> GetQuestionsByExamIdAsync(int examId);
         Task<IEnumerable<Section>> GetSectionsWithQuestionsAsync(int examId);
+        Task<List<Option>> GetOptionsByQuestionIdAsync(int questionId);
     }
 }
